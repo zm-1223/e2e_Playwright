@@ -1,0 +1,43 @@
+[project]
+name = "e2e-demo"
+version = "1.0.0"
+description = "Practice Software Testing E2E automation"
+requires-python = ">=3.10"
+dependencies = [
+    "pytest==8.3.4",
+    "allure-pytest==2.13.5",
+    "selenium==4.27.1",
+    "requests==2.32.3",
+    "webdriver-manager==4.0.2",
+    "python-dotenv==1.0.1",
+    "pytest-rerunfailures==14.0",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["api*", "config*", "ui*", "utils*", "tests*"]
+
+# 终端在项目根目录执行 pytest / pytest.bat 时，默认跑 tests/ 下全部 test_*.py（不加 -m 过滤）
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "-s",
+    "--alluredir=reports/allure-results",
+    "--clean-alluredir",
+]
+markers = [
+    "e2e: 端到端完整流程测试",
+    "api: 纯 API 接口测试",
+    "ui: 纯 UI 界面测试",
+    "smoke: 冒烟测试",
+    "exception: 异常/负面测试用例",
+    "flaky: 失败自动重试（pytest-rerunfailures）",
+]

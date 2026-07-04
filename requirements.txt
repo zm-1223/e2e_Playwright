@@ -1,0 +1,14 @@
+# pytest 测试框架
+pytest==8.3.4
+# allure 报告集成
+allure-pytest==2.13.5
+# Selenium 浏览器自动化
+selenium==4.27.1
+# HTTP 请求库（API 层）
+requests==2.32.3
+# WebDriver 自动管理
+webdriver-manager==4.0.2
+# 环境变量加载
+python-dotenv==1.0.1
+# pytest 失败自动重试
+pytest-rerunfailures==14.0

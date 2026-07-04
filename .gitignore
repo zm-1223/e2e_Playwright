@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# 环境配置（含敏感信息）
+.env
+
+# 测试报告
+reports/
+
+# IDE
+.idea/
