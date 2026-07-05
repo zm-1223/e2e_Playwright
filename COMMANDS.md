@@ -9,9 +9,9 @@
 
 | 文档 | 定位 |
 |------|------|
-| [README.md](./README.md) | 快速入门 |
 | [TESTCASES.md](./TESTCASES.md) | 18 条用例说明 |
 | **COMMANDS.md（本文）** | 终端命令速查 |
+| [interview.md](./interview.md) | 架构设计、编程技巧、弹窗/网络/Session 方案、面试题 |
 | [node.md](./node.md) | 架构与面试 |
 
 ---
