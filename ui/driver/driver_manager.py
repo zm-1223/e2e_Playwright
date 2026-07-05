@@ -77,6 +77,8 @@ class WebDriverManager:
         if BROWSER == "edge":
             # 实例化 Edge 浏览器选项对象（第三方：selenium → EdgeOptions）
             options = EdgeOptions()
+            # 页面加载策略设为 eager：DOMContentLoaded 即返回，避免 SPA 的 load 事件迟迟不触发导致 get() 空等到超时（第三方：selenium → Options.page_load_strategy）
+            options.page_load_strategy = "eager"
             # 若配置为无头模式，添加 --headless=new 参数（项目：config/settings.py → HEADLESS；第三方：selenium → Options.add_argument）
             if HEADLESS:
 # 作用：调用方法/函数；调用关系：见左侧调用表达式；自定义/框架：自定义或框架；来源(ui/driver/driver_manager.py)
@@ -93,6 +95,8 @@ class WebDriverManager:
         else:
             # 默认分支：实例化 Chrome 浏览器选项（第三方：selenium → ChromeOptions）
             options = ChromeOptions()
+            # 页面加载策略设为 eager：DOMContentLoaded 即返回，避免 SPA 的 load 事件迟迟不触发导致 get() 空等到超时（第三方：selenium → Options.page_load_strategy）
+            options.page_load_strategy = "eager"
             # 无头模式开关（项目：config/settings.py → HEADLESS）
             if HEADLESS:
 # 作用：调用方法/函数；调用关系：见左侧调用表达式；自定义/框架：自定义或框架；来源(ui/driver/driver_manager.py)

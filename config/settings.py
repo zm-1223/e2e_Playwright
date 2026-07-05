@@ -44,11 +44,11 @@ ADMIN_API_BASE_URL = "https://demo.tigshop.cn/adminapi"
 
 # 默认浏览器类型，DriverManager 创建 WebDriver 时使用 （项目：ui/driver/driver_manager.py → BROWSER）
 BROWSER = "chrome"
-# 是否无头模式运行浏览器，False 表示有界面便于本地调试 （项目：ui/driver/driver_manager.py → HEADLESS）
-HEADLESS = False
+# 是否无头模式运行浏览器：可用环境变量 HEADLESS 覆盖（1/true=无头，快且不弹窗）；默认无头以便快速执行 （项目：ui/driver/driver_manager.py → HEADLESS）
+HEADLESS = os.getenv("HEADLESS", "1").lower() in ("1", "true", "yes")
 
-# Selenium 隐式等待秒数：find_element 全局默认最长等待时间 （项目：ui/driver/driver_manager.py → IMPLICIT_WAIT）
-IMPLICIT_WAIT = 10
+# Selenium 隐式等待秒数：必须为 0，避免与显式等待(WebDriverWait)叠加。隐式等待非 0 时 find_elements 在"无匹配"会空等满该秒数，导致 dismiss_all 每次多等 N×IMPLICIT_WAIT 秒 （项目：ui/driver/driver_manager.py → IMPLICIT_WAIT）
+IMPLICIT_WAIT = int(os.getenv("IMPLICIT_WAIT", "0"))
 # 显式等待默认超时，BasePage 中 WebDriverWait 使用 （项目：ui/pages/base_page.py → EXPLICIT_WAIT）
 EXPLICIT_WAIT = 20
 # 页面加载超时，driver.set_page_load_timeout 使用 （项目：ui/driver/driver_manager.py → PAGE_LOAD_TIMEOUT）
