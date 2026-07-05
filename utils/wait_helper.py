@@ -24,7 +24,9 @@ def wait_for_page_ready(driver: WebDriver, timeout: int = None) -> None:
         WebDriverWait(driver, wait_seconds).until(
             # 每隔一小段时间执行 lambda：用 JS 读 readyState，等于 "complete" 则条件满足 （第三方：selenium → WebDriver.execute_script）
             lambda d: d.execute_script("return document.readyState") == "complete"
+# 作用：调用方法/函数；调用关系：见左侧调用表达式；自定义/框架：自定义或框架；来源(utils/wait_helper.py)
         )
+# 作用：捕获异常；调用关系：try/except 错误处理；自定义/框架：Python 内置；来源(except)
     except Exception:
         # 超时或任何异常都忽略，避免偶发慢加载导致整个用例挂掉 （Python 内置：Exception）
         pass
@@ -57,14 +59,17 @@ def retry_action(
     last_error = None
     # 从第 1 次尝试循环到第 max_retries 次（含） （标准库：range）
     for attempt in range(1, max_retries + 1):
+# 作用：尝试执行可能失败的操作；调用关系：异常处理块；自定义/框架：Python 内置；来源(try)
         try:
             # 执行 func；成功则直接返回结果，不再重试 （Python 内置：return）
             return func()
+# 作用：捕获异常；调用关系：try/except 错误处理；自定义/框架：Python 内置；来源(except)
         except exceptions as exc:
             # 捕获到指定类型的异常，记下错误信息 （Python 内置：Exception）
             last_error = exc
             # 若已是最后一次尝试，把异常继续向上抛出 （Python 内置：raise）
             if attempt >= max_retries:
+# 作用：抛出异常；调用关系：错误向上传递；自定义/框架：Python 内置；来源(raise)
                 raise
             # 还没用完次数，先等待 delay 秒再进入下一轮 （标准库：time.sleep）
             time.sleep(delay)

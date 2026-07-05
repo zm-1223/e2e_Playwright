@@ -19,6 +19,7 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,   # 被其他元素遮挡无法点击 （第三方：selenium → ElementClickInterceptedException）
     ElementNotInteractableException,    # 元素存在但不可交互 （第三方：selenium → ElementNotInteractableException）
     StaleElementReferenceException,     # DOM 刷新后旧元素引用失效 （第三方：selenium → StaleElementReferenceException）
+# 作用：调用方法/函数；调用关系：见左侧调用表达式；自定义/框架：自定义或框架；来源(utils/popup_handler.py)
 )
 # 从配置读取：是否启用自动关弹窗、默认关闭按钮选择器列表 （项目：config/settings.py → AUTO_DISMISS_POPUP, POPUP_CLOSE_SELECTORS）
 from config.settings import AUTO_DISMISS_POPUP, POPUP_CLOSE_SELECTORS
@@ -31,9 +32,13 @@ logger = logging.getLogger(__name__)
 class PopupHandler:
     """突发弹窗处理器：快速扫描并关闭常见遮挡层（无弹窗时几乎零耗时）。"""
 
+# 作用：定义函数/方法 __init__；调用关系：见函数体调用链；自定义/框架：自定义；来源(utils/popup_handler.py)
     def __init__(
+# 作用：执行本行逻辑；调用关系：见上下文；自定义/框架：自定义；来源(utils/popup_handler.py)
         self,
+# 作用：执行本行逻辑；调用关系：见上下文；自定义/框架：自定义；来源(utils/popup_handler.py)
         driver: WebDriver,
+# 作用：赋值/绑定变量；调用关系：供后续步骤使用；自定义/框架：Python 内置；来源(赋值)
         selectors: Optional[List[str]] = None,
     ) -> None:  # 初始化弹窗处理器 （项目：utils/popup_handler.py → __init__）
         """初始化弹窗处理器。"""
@@ -46,6 +51,7 @@ class PopupHandler:
         """尝试关闭所有可识别的弹窗，返回成功关闭数量。"""
         # 配置关闭自动处理时，直接返回 0，不做任何操作 （项目：config/settings.py → AUTO_DISMISS_POPUP）
         if not AUTO_DISMISS_POPUP:
+# 作用：返回结果给调用方；调用关系：函数出口；自定义/框架：Python 内置；来源(return)
             return 0
         # 累计本次成功关闭的弹窗/遮挡层数量 （项目：utils/popup_handler.py → dismiss_all）
         closed = 0
@@ -53,7 +59,9 @@ class PopupHandler:
         closed += self._press_escape()
         # 按配置的选择器列表，逐个尝试点击可见的关闭按钮 （项目：utils/popup_handler.py → _try_click_selector）
         for selector in self.selectors:
+# 作用：条件分支判断；调用关系：控制流程；自定义/框架：Python 内置；来源(if)
             if self._try_click_selector(selector):
+# 作用：赋值/绑定变量；调用关系：供后续步骤使用；自定义/框架：Python 内置；来源(赋值)
                 closed += 1
         # 若存在 JavaScript alert/confirm，则 accept 掉 （项目：utils/popup_handler.py → _accept_alert_if_present）
         closed += self._accept_alert_if_present()
@@ -62,6 +70,7 @@ class PopupHandler:
 
     def _press_escape(self) -> int:  # 发送 ESC 键尝试关闭弹窗 （项目：utils/popup_handler.py → _press_escape）
         """发送 ESC 键尝试关闭弹窗。"""
+# 作用：尝试执行可能失败的操作；调用关系：异常处理块；自定义/框架：Python 内置；来源(try)
         try:
             # 找到页面 body 元素，向它发送键盘事件（Selenium 常见做法） （第三方：selenium → WebDriver.find_element）
             body = self.driver.find_element(By.TAG_NAME, "body")
@@ -69,12 +78,14 @@ class PopupHandler:
             body.send_keys(Keys.ESCAPE)
             # 认为尝试了一次关闭，返回 1 （Python 内置：return）
             return 1
+# 作用：捕获异常；调用关系：try/except 错误处理；自定义/框架：Python 内置；来源(except)
         except Exception:
             # 任何异常（如无 body）都忽略，返回 0 表示未关闭 （Python 内置：Exception）
             return 0
 
     def _try_click_selector(self, selector: str) -> bool:  # 快速查找可见关闭按钮并点击 （项目：utils/popup_handler.py → _try_click_selector）
         """快速查找可见关闭按钮并点击（无弹窗时立即返回）。"""
+# 作用：尝试执行可能失败的操作；调用关系：异常处理块；自定义/框架：Python 内置；来源(try)
         try:
             # find_elements 不等待：没有匹配元素时立即返回空列表，避免累积超时 （第三方：selenium → WebDriver.find_elements）
             elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
@@ -88,22 +99,29 @@ class PopupHandler:
                     return True
             # 没有找到可点击的关闭按钮 （Python 内置：return）
             return False
+# 作用：捕获异常；调用关系：try/except 错误处理；自定义/框架：Python 内置；来源(except)
         except (
+# 作用：执行本行逻辑；调用关系：见上下文；自定义/框架：自定义；来源(utils/popup_handler.py)
             ElementNotInteractableException,
+# 作用：执行本行逻辑；调用关系：见上下文；自定义/框架：自定义；来源(utils/popup_handler.py)
             ElementClickInterceptedException,
+# 作用：执行本行逻辑；调用关系：见上下文；自定义/框架：自定义；来源(utils/popup_handler.py)
             StaleElementReferenceException,
+# 作用：执行本行逻辑；调用关系：见上下文；自定义/框架：自定义；来源(utils/popup_handler.py)
         ):
             # 点击过程中出现已知 Selenium 异常时，视为本次选择器失败 （第三方：selenium → exceptions）
             return False
 
     def _accept_alert_if_present(self) -> int:  # 若存在 JavaScript alert 则接受 （项目：utils/popup_handler.py → _accept_alert_if_present）
         """若存在 JavaScript alert 则接受。"""
+# 作用：尝试执行可能失败的操作；调用关系：异常处理块；自定义/框架：Python 内置；来源(try)
         try:
             # switch_to.alert 切换到浏览器原生 alert；不存在时会抛异常 （第三方：selenium → WebDriver.switch_to.alert）
             alert = self.driver.switch_to.alert
             # accept() 相当于点击 alert 的「确定」 （第三方：selenium → Alert.accept）
             alert.accept()
             return 1  # 成功关闭 alert （Python 内置：return）
+# 作用：捕获异常；调用关系：try/except 错误处理；自定义/框架：Python 内置；来源(except)
         except Exception:
             # 没有 alert 或切换失败时返回 0 （Python 内置：Exception）
             return 0

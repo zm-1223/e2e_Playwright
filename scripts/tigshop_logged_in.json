@@ -1,0 +1,48 @@
+[
+  {
+    "name": "member_coupon_logged_in",
+    "url": "https://demo.tigshop.cn/member/login?returnUrl=/member/coupon/list",
+    "title": "登录",
+    "h1_h2": [],
+    "menu": [],
+    "coupon_text": [],
+    "tables": []
+  },
+  {
+    "name": "coupon_list_logged_in",
+    "url": "https://demo.tigshop.cn/coupon/list",
+    "title": "集券中心",
+    "h1_h2": [],
+    "menu": [],
+    "coupon_text": [
+      "集券中心\n¥\n20\n.00\n【满100元减20元】\n2024-08-09 14:44:20 至 2026-08-28 14:44:20\n马上领\n8折\n【满100",
+      "¥\n20\n.00\n【满100元减20元】\n2024-08-09 14:44:20 至 2026-08-28 14:44:20\n马上领\n8折\n【满100打8折】\n",
+      "8折",
+      "8折",
+      "8折"
+    ],
+    "tables": []
+  },
+  {
+    "name": "dashboard",
+    "url": "https://demo.tigshop.cn/admin/login/index?redirect=/",
+    "title": "登录",
+    "h1_h2": [
+      "欢迎登录商城后台管理系统"
+    ],
+    "menu": [],
+    "coupon_text": [],
+    "tables": []
+  },
+  {
+    "name": "promotion/coupon/list",
+    "url": "https://demo.tigshop.cn/admin/login/index?redirect=/promotion/coupon/list",
+    "title": "登录",
+    "h1_h2": [
+      "欢迎登录商城后台管理系统"
+    ],
+    "menu": [],
+    "coupon_text": [],
+    "tables": []
+  }
+]

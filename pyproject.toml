@@ -1,7 +1,7 @@
 [project]
 name = "e2e-demo"
 version = "1.0.0"
-description = "Practice Software Testing E2E automation"
+description = "Tigshop demo E2E automation (API + UI + E2E)"
 requires-python = ">=3.10"
 dependencies = [
     "pytest==8.3.4",
@@ -38,6 +38,5 @@ markers = [
     "api: 纯 API 接口测试",
     "ui: 纯 UI 界面测试",
     "smoke: 冒烟测试",
-    "exception: 异常/负面测试用例",
     "flaky: 失败自动重试（pytest-rerunfailures）",
 ]

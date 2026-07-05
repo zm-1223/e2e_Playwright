@@ -1,3 +1,6 @@
-# 这是 api 包的初始化文件；Python 把含 __init__.py 的文件夹视为“包”，便于 import api.xxx （Python 内置：__init__.py）
-# 模块级文档字符串：用三引号描述本包用途，help(api) 或 IDE 会显示这段说明 （Python 内置：docstring）
-"""淘宝 API 客户端模块。"""
+# =============================================================================
+# api/__init__.py — HTTP API 客户端包标识 （项目：api/__init__.py）
+# 作用：将 api 目录标记为 Python 包，使 import api.client.xxx 生效 （Python 内置：包机制）
+# 说明：具体客户端实现在 api/client/ 子目录 （项目：api/client/）
+# =============================================================================
+"""Tigshop HTTP API 客户端包。"""

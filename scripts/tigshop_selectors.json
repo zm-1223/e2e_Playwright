@@ -1,0 +1,285 @@
+[
+  {
+    "name": "home",
+    "url": "https://demo.tigshop.cn/",
+    "title": "Tigshop - 开源商城系统",
+    "inputs": [
+      {
+        "type": "text",
+        "placeholder": "搜索",
+        "name": "keywords",
+        "class": "search-input"
+      }
+    ],
+    "buttons": [],
+    "links_sample": [],
+    "coupon_elements": [
+      {
+        "tag": "div",
+        "class": "mod_coupon",
+        "text": "领券中心\nCOUPON\nGO >>\n¥\n20\n至尊会员专享30元优惠券\n马上领 >\n¥\n10\n新人无门槛10元\n再次领取 >\n8折\n满100元打8折\n马上领 >"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_tit",
+        "text": "领券中心\nCOUPON\nGO >>"
+      },
+      {
+        "tag": "p",
+        "class": "go_coupon",
+        "text": "GO >>"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_edge",
+        "text": ""
+      },
+      {
+        "tag": "div",
+        "class": "coupon_list",
+        "text": "¥\n20\n至尊会员专享30元优惠券\n马上领 >\n¥\n10\n新人无门槛10元\n再次领取 >\n8折\n满100元打8折\n马上领 >\n¥\n30\n满200元减30元\n马上"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_detail",
+        "text": "¥\n20\n至尊会员专享30元优惠券"
+      },
+      {
+        "tag": "p",
+        "class": "coupon_sort el-tooltip__trigger el-tooltip__trigger",
+        "text": "至尊会员专享30元优惠券"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_edge",
+        "text": ""
+      },
+      {
+        "tag": "div",
+        "class": "coupon_detail",
+        "text": "¥\n10\n新人无门槛10元"
+      },
+      {
+        "tag": "p",
+        "class": "coupon_sort el-tooltip__trigger el-tooltip__trigger",
+        "text": "新人无门槛10元"
+      }
+    ]
+  },
+  {
+    "name": "coupon_list",
+    "url": "https://demo.tigshop.cn/coupon/list",
+    "title": "集券中心",
+    "inputs": [
+      {
+        "type": "text",
+        "placeholder": "搜索",
+        "name": "keywords",
+        "class": "search-input"
+      }
+    ],
+    "buttons": [],
+    "links_sample": [],
+    "coupon_elements": [
+      {
+        "tag": "div",
+        "class": "container coupon-list",
+        "text": "集券中心\n¥\n20\n.00\n【满100元减20元】\n2024-08-09 14:44:20 至 2026-08-28 14:44:20\n马上领\n8折\n【满100"
+      },
+      {
+        "tag": "div",
+        "class": "coupon-card-list",
+        "text": "¥\n20\n.00\n【满100元减20元】\n2024-08-09 14:44:20 至 2026-08-28 14:44:20\n马上领\n8折\n【满100打8折】\n"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_discount",
+        "text": "8折"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_discount",
+        "text": "8折"
+      },
+      {
+        "tag": "div",
+        "class": "coupon_discount",
+        "text": "8折"
+      }
+    ]
+  },
+  {
+    "name": "member_coupon",
+    "url": "https://demo.tigshop.cn/member/login?returnUrl=/member/coupon/list",
+    "title": "登录",
+    "inputs": [
+      {
+        "type": "text",
+        "placeholder": "用户名/手机/邮箱",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "password",
+        "placeholder": "密码",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "text",
+        "placeholder": "您的手机号",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "text",
+        "placeholder": "请输入验证码",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "checkbox",
+        "placeholder": "",
+        "name": "",
+        "class": "el-checkbox__original"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "登录",
+        "class": "el-button el-button--primary login_btn submit_btn"
+      }
+    ],
+    "links_sample": [
+      {
+        "text": "",
+        "href": "https://demo.tigshop.cn/"
+      },
+      {
+        "text": "没有账号？注册新用户！",
+        "href": "https://demo.tigshop.cn/member/register/"
+      },
+      {
+        "text": "去注册",
+        "href": "https://demo.tigshop.cn/member/register/"
+      },
+      {
+        "text": "《服务协议》",
+        "href": "https://demo.tigshop.cn/article/issue/info?articleSn=fwxy"
+      },
+      {
+        "text": "《隐私协议》",
+        "href": "https://demo.tigshop.cn/article/issue/info?articleSn=ysxy"
+      },
+      {
+        "text": "关于我们",
+        "href": "https://demo.tigshop.cn/article/issue/info?articleId=5"
+      },
+      {
+        "text": "留言反馈",
+        "href": "https://demo.tigshop.cn/member/feedback/list/"
+      },
+      {
+        "text": "联系我们",
+        "href": "https://demo.tigshop.cn/article/issue/info?articleId=20"
+      },
+      {
+        "text": "加盟合作",
+        "href": "https://demo.tigshop.cn/article/issue/info?articleId=25"
+      },
+      {
+        "text": "配送公告",
+        "href": "https://demo.tigshop.cn/article/issue/info?articleId=10"
+      }
+    ],
+    "coupon_elements": []
+  },
+  {
+    "name": "front_login",
+    "url": "https://demo.tigshop.cn/login",
+    "title": "404 - 页面未找到",
+    "inputs": [
+      {
+        "type": "text",
+        "placeholder": "搜索",
+        "name": "keywords",
+        "class": "search-input"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "返回首页",
+        "class": "el-button el-button--primary"
+      }
+    ],
+    "links_sample": [],
+    "coupon_elements": []
+  },
+  {
+    "name": "admin_login",
+    "url": "https://demo.tigshop.cn/admin/login/index?redirect=/",
+    "title": "登录",
+    "inputs": [
+      {
+        "type": "text",
+        "placeholder": "请输入用户名",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "password",
+        "placeholder": "请输入密码",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "checkbox",
+        "placeholder": "",
+        "name": "",
+        "class": "el-checkbox__original"
+      },
+      {
+        "type": "checkbox",
+        "placeholder": "",
+        "name": "",
+        "class": "el-checkbox__original"
+      },
+      {
+        "type": "text",
+        "placeholder": "请输入手机号",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "text",
+        "placeholder": "请输入验证码",
+        "name": "",
+        "class": "el-input__inner"
+      },
+      {
+        "type": "checkbox",
+        "placeholder": "",
+        "name": "",
+        "class": "el-checkbox__original"
+      },
+      {
+        "type": "checkbox",
+        "placeholder": "",
+        "name": "",
+        "class": "el-checkbox__original"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "登 录",
+        "class": "el-button el-button--primary login-submit-btn"
+      },
+      {
+        "text": "",
+        "class": "el-button el-button--primary login-submit-btn"
+      }
+    ],
+    "links_sample": [],
+    "coupon_elements": []
+  }
+]
