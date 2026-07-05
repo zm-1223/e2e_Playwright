@@ -1,7 +1,7 @@
 # =============================================================================
 # api/client/auth_client.py — 买家认证与用户 API 客户端 （项目：api/client/auth_client.py）
 # 作用：封装前台用户登录、获取用户详情等 /user/* 接口 （项目：api/client/auth_client.py → AuthApiClient）
-# 说明：继承 BaseApiClient；由 tests/conftest.py 的 buyer_auth_api / logged_in_buyer_api 创建并注入测试 （项目：tests/conftest.py）
+# 说明：继承 BaseApiClient；由 tests/conftest.py 的 buyer_auth_api 创建并注入 E2E/异常测试 （项目：tests/conftest.py）
 # =============================================================================
 
 # 导入 Any/Dict：标注 login/get_user_detail 的返回值类型为字典 （标准库：typing）
@@ -15,7 +15,7 @@ from api.client.base_client import BaseApiClient
 class AuthApiClient(BaseApiClient):
     """买家认证与用户 API。"""
 
-    # 密码登录：POST /user/login/signin，成功后将 token 写入 Session （项目：tests/conftest.py → logged_in_buyer_api 调用）
+    # 密码登录：POST /user/login/signin，成功后将 token 写入 Session （项目：utils/ui_auth.py、E2E 流程间接使用）
     def login(self, username: str, password: str) -> Dict[str, Any]:
         # 发起 POST 登录请求，json 体符合 Tigshop 密码登录接口约定 （项目：api/client/base_client.py → BaseApiClient.post）
         response = self.post(
@@ -43,7 +43,7 @@ class AuthApiClient(BaseApiClient):
         # 返回完整登录 data（含 token、用户信息等），供测试断言 （Python 内置：return）
         return data
 
-    # 获取当前登录用户详情：GET /user/user/detail，需已 set_token （项目：tests/api/test_home_product_api.py 等调用）
+    # 获取当前登录用户详情：GET /user/user/detail，需已 set_token （项目：tests/e2e/test_exception_e2e.py 异常断言）
     def get_user_detail(self) -> Dict[str, Any]:
         # 发起 GET 请求，Session 自动携带 Bearer Token （项目：api/client/base_client.py → BaseApiClient.get）
         response = self.get("/user/user/detail")

@@ -17,13 +17,13 @@
 ## 快速开始
 
 ```powershell
-cd D:\github-code\E2E_demo
+cd D:\github-code\e2e_function
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 copy .env.example .env
 
-.\pytest.bat -m api    # 先跑 API（最快）
-.\pytest.bat           # 全部 29 用例
+.\pytest.bat -m ui         # 先跑 UI 功能测试
+.\pytest.bat               # 全部 18 用例
 ```
 
 跑完后打开报告：
@@ -34,15 +34,17 @@ start reports\allure-report\index.html
 
 ---
 
-## 测试分层（29 用例）
+## 测试分层（18 用例）
 
 | 类型 | 目录 | 数量 | 覆盖 |
 |------|------|------|------|
-| API | `tests/api/` | 13 | 首页、商品、购物车、订单、优惠券、后台 |
-| UI | `tests/ui/` | 15 | 前台 13 + 后台 2 |
-| E2E | `tests/e2e/` | 1 | 搜索→加购→结算混合流程 |
+| UI 功能 | `tests/ui/` | 15 | 前台 13 + 后台 2 |
+| UI 异常 | `tests/ui/test_exception_ui.py` | 1 | 无效商品页 |
+| E2E | `tests/e2e/` | 2 | 购物流程 + 无效 Token |
 
-**业务场景：** 商品列表、搜索、加购、购物车、结算、订单、优惠券、个人中心（前台 + 后台）
+**已移除：** `tests/api/` 纯接口测试（API 客户端仍供 E2E 混合断言使用）
+
+**业务场景：** 商品列表、搜索、加购、购物车、结算、订单、优惠券、个人中心（前台 + 后台）+ 异常场景
 
 详细用例说明见 **[TESTCASES.md](./TESTCASES.md)**。
 
@@ -52,15 +54,15 @@ start reports\allure-report\index.html
 
 ```
 config/settings.py       # Tigshop URL、账号、stable_delay（逐行中文注释）
-api/client/              # 买家/后台 API 客户端（逐行中文注释）
+api/client/              # 买家/后台 API 客户端（E2E 混合断言，逐行中文注释）
 ui/driver/driver_manager.py  # WebDriver 工厂（逐行中文注释）
 ui/pages/base_page.py        # Page Object 基类（逐行中文注释）
 ui/pages/front/              # 前台 Page Object（逐行中文注释）
 ui/pages/admin/              # 后台 Page Object（逐行中文注释）
 utils/                   # 等待、弹窗、Allure、UI 登录、Token 同步（逐行中文注释）
 generate_allure_report.py / run_e2e.py  # 报告生成与一键跑测入口（逐行中文注释）
-tests/conftest.py        # Fixture + 账号隔离 + 购物车清理（逐行中文注释）
-tests/api|ui|e2e/        # 测试用例（10 个 test_*.py 逐行中文注释）
+tests/conftest.py        # Fixture + 账号隔离（逐行中文注释）
+tests/ui|e2e/            # UI 功能 + 异常 + E2E 用例（逐行中文注释）
 TESTCASES.md             # 用例说明文档
 COMMANDS.md              # 终端命令速查
 node.md                  # 架构与面试题
@@ -71,9 +73,9 @@ node.md                  # 架构与面试题
 ## 核心设计
 
 1. **stable_delay**：SPA 操作间 0.5s 稳定延迟（`ACTION_STABLE_DELAY`）
-2. **账号隔离**：每条用例独立 Session / WebDriver；买家与后台 API 分离
-3. **串号防护**：登录 fixture 前后 `clear_cart()`，E2E 用 API 重建购物车
-4. **登录策略**：API 优先；人机验证时回退 UI 登录同步 JWT
+2. **账号隔离**：每条用例独立 WebDriver；E2E 用例独立 API Session
+3. **串号防护**：E2E 用 API 重建购物车，避免 UI/API 状态不一致
+4. **登录策略**：UI 登录获取 JWT；E2E 通过 `sync_browser_token_to_clients` 同步至 API
 
 ---
 

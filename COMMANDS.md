@@ -10,7 +10,7 @@
 | 文档 | 定位 |
 |------|------|
 | [README.md](./README.md) | 快速入门 |
-| [TESTCASES.md](./TESTCASES.md) | 29 条用例说明 |
+| [TESTCASES.md](./TESTCASES.md) | 18 条用例说明 |
 | **COMMANDS.md（本文）** | 终端命令速查 |
 | [node.md](./node.md) | 架构与面试 |
 
@@ -19,7 +19,7 @@
 ## 1. 环境准备
 
 ```powershell
-cd D:\github-code\E2E_demo
+cd D:\github-code\e2e_function
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 copy .env.example .env
@@ -41,19 +41,20 @@ ADMIN_PASSWORD=demo123
 ## 2. 运行测试
 
 ```powershell
-.\pytest.bat                    # 全部 29 用例
-.\pytest.bat -m api             # API 13 条（无浏览器，最快）
-.\pytest.bat -m ui              # UI 15 条
-.\pytest.bat -m e2e             # E2E 1 条
+.\pytest.bat                    # 全部 18 用例
+.\pytest.bat -m ui              # UI 功能 15 条
+.\pytest.bat -m exception       # 异常 2 条
+.\pytest.bat -m e2e             # E2E 2 条
 .\pytest.bat -m smoke           # 冒烟（E2E 购买流程）
 ```
 
 按文件：
 
 ```powershell
-.\pytest.bat tests/api/test_home_product_api.py -v
 .\pytest.bat tests/ui/test_front_shop_ui.py -v
+.\pytest.bat tests/ui/test_exception_ui.py -v
 .\pytest.bat tests/e2e/test_front_purchase_e2e.py -v
+.\pytest.bat tests/e2e/test_exception_e2e.py -v
 ```
 
 ---
@@ -86,19 +87,19 @@ start reports\allure-report\index.html
 | 现象 | 处理 |
 |------|------|
 | `No module named 'allure'` | 用 `.\pytest.bat` |
-| API 登录「需要行为验证」 | 正常；fixture 会自动 UI 登录同步 token |
 | UI 元素找不到 | 加大 `EXPLICIT_WAIT`；检查 Nuxt 是否加载完成 |
-| 购物车/结算断言失败 | 上一条用例残留；确认 `clear_cart` teardown 生效 |
+| 购物车/结算断言失败 | E2E 确认 `clear_cart` + API 加购步骤生效 |
 | webdriver 下载失败 | 已改用 Selenium Manager；确保 Chrome 已安装 |
 | 后台登录失败 | 买家账号不能登后台，用 `demo` / `demo123` |
+| 无效 Token 用例失败 | 确认 Tigshop 返回 `code != 0` 而非 HTTP 401 |
 
 ---
 
 ## 6. 推荐工作流
 
 ```powershell
-# 日常：API 快速反馈
-.\pytest.bat -m api -v
+# 日常：UI 功能快速反馈
+.\pytest.bat -m ui -v
 
 # 提交前：全量
 .\pytest.bat -v

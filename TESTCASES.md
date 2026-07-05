@@ -10,23 +10,25 @@
 
 | 层级 | 文件 | 用例数 | 说明 |
 |------|------|--------|------|
-| **API** | `tests/api/` | 13 | 接口数据与业务断言 |
-| **UI** | `tests/ui/` | 15 | 页面元素展示与交互 |
-| **E2E** | `tests/e2e/` | 1 | 前台搜索→加购→结算混合流程 |
-| **合计** | | **29** | 已删除全部异常/负面用例 |
+| **UI 功能** | `tests/ui/test_front_*.py`、`test_admin_ui.py` | 15 | 页面元素展示与交互 |
+| **UI 异常** | `tests/ui/test_exception_ui.py` | 1 | 无效商品页等负面路径 |
+| **E2E** | `tests/e2e/` | 2 | 购物流程 + 无效 Token |
+| **合计** | | **18** | 已移除纯 API 接口测试 |
 
 **覆盖业务场景：**
 
-| 场景 | API | UI 前台 | UI 后台 | E2E |
-|------|-----|---------|---------|-----|
-| 商品列表 | ✅ | ✅ | — | — |
-| 搜索 | ✅ | ✅ | — | ✅ |
-| 加购 | ✅ | ✅ | — | ✅ |
-| 购物车 | ✅ | ✅ | — | ✅ |
-| 结算 | ✅ | ✅ | — | ✅ |
-| 订单 | ✅ | ✅ | — | — |
-| 优惠券 | ✅ | ✅ | ✅ | — |
-| 个人中心 | ✅ | ✅ | — | — |
+| 场景 | UI 前台 | UI 后台 | E2E | 异常 |
+|------|---------|---------|-----|------|
+| 商品列表 | ✅ | — | — | — |
+| 搜索 | ✅ | — | ✅ | — |
+| 加购 | ✅ | — | ✅ | — |
+| 购物车 | ✅ | — | ✅ | — |
+| 结算 | ✅ | — | ✅ | — |
+| 订单 | ✅ | — | — | — |
+| 优惠券 | ✅ | ✅ | — | — |
+| 个人中心 | ✅ | — | — | — |
+| 无效商品页 | — | — | — | ✅ |
+| 无效 Token | — | — | — | ✅ |
 
 ---
 
@@ -42,18 +44,16 @@
 
 | 机制 | 实现 |
 |------|------|
-| **API Session 隔离** | `api_session` fixture 为 `function` 级，每条用例独立 `requests.Session` |
-| **买家 / 后台分离** | `buyer_auth_api` 与 `admin_api` 使用不同 base_url 与 token |
+| **API Session 隔离** | `api_session` fixture 为 `function` 级，E2E 每条用例独立 `requests.Session` |
 | **浏览器隔离** | `front_driver` / `admin_driver` / `buyer_driver` 每条用例独立 WebDriver |
-| **登录态获取** | 优先 API 登录；触发人机验证时回退 UI 登录并 `sync_browser_token_to_clients` |
+| **登录态获取** | UI 登录（`buyer_driver`）；E2E 通过 `sync_browser_token_to_clients` 同步 JWT |
 
 ### 2.3 串号（测试间状态污染）防护
 
 | 风险 | 对策 |
 |------|------|
-| 购物车残留影响加购/结算 | `logged_in_buyer_api` setup/teardown 调用 `cart_api.clear_cart()` |
-| 同一账号订单/优惠券互相干扰 | 每条用例独立 Session；E2E 用 API 重建购物车而非复用 UI 购物车 ID |
-| UI 与 API 购物车不一致 | E2E 中 UI 验证交互，API 侧 `clear_cart` + `addToCart` 保证断言可控 |
+| 购物车残留影响加购/结算 | E2E 中 API `clear_cart` + `addToCart` 重建可控数据 |
+| UI 与 API 购物车不一致 | E2E 中 UI 验证交互，API 侧独立加购保证断言可控 |
 
 ### 2.4 测试代码注释规范
 
@@ -62,58 +62,19 @@
 | 文件 | 说明 |
 |------|------|
 | `tests/conftest.py` | pytest fixture、session 钩子、失败截图 |
-| `tests/api/test_home_product_api.py` | 首页/商品 API（5 用例） |
-| `tests/api/test_cart_order_api.py` | 购物车/订单 API（5 用例） |
-| `tests/api/test_coupon_api.py` | 优惠券 API（1 用例） |
-| `tests/api/test_admin_api.py` | 后台 API（2 用例） |
 | `tests/ui/test_front_home_ui.py` | 前台首页 UI（4 用例） |
 | `tests/ui/test_front_shop_ui.py` | 前台购物流程 UI（4 用例） |
 | `tests/ui/test_front_member_ui.py` | 会员/优惠券 UI（5 用例） |
 | `tests/ui/test_admin_ui.py` | 后台 UI（2 用例） |
+| `tests/ui/test_exception_ui.py` | UI 异常（1 用例） |
 | `tests/e2e/test_front_purchase_e2e.py` | E2E 完整购物流程（1 用例） |
+| `tests/e2e/test_exception_e2e.py` | E2E 异常（1 用例） |
 
 ---
 
-## 3. API 用例明细
+## 3. UI 功能用例明细
 
-### 3.1 `test_home_product_api.py`（5）
-
-| 用例 | 断言 |
-|------|------|
-| `test_home_index` | 首页 `moduleList` 非空 |
-| `test_hot_categories` | 热门分类 ≥1 且含 `categoryName` |
-| `test_product_list` | 商品分页 `records` 非空 |
-| `test_search_products` | 关键词搜索有结果 |
-| `test_product_detail` | 详情含 `productName` 与 `skuList` |
-
-### 3.2 `test_cart_order_api.py`（5）
-
-| 用例 | 前置 | 断言 |
-|------|------|------|
-| `test_add_to_cart` | 买家登录 + 清空购物车 | 加购后 `cart_item_count` 增加 |
-| `test_cart_list` | 加购一件商品 | 返回含 `cartList` |
-| `test_checkout_index` | 加购后 | 结算 index 含 `addressList` |
-| `test_order_list` | 买家登录 | 订单列表含 `records` |
-| `test_user_detail` | 买家登录 | `username == 123123` |
-
-### 3.3 `test_coupon_api.py`（1）
-
-| 用例 | 断言 |
-|------|------|
-| `test_my_coupons` | 我的优惠券列表含 `records` |
-
-### 3.4 `test_admin_api.py`（2）
-
-| 用例 | 断言 |
-|------|------|
-| `test_admin_login` | API 返回 token（验证码时 skip） |
-| `test_admin_coupon_list` | 后台优惠券名称列表 ≥1 |
-
----
-
-## 4. UI 用例明细
-
-### 4.1 `test_front_home_ui.py`（4）— 未登录
+### 3.1 `test_front_home_ui.py`（4）— 未登录
 
 | 用例 | 页面 | 关键定位 | 断言 |
 |------|------|----------|------|
@@ -122,7 +83,7 @@
 | `test_category_list` | `/list?cat=1` | 商品链接 | 分类列表有商品 |
 | `test_search_results` | `/search?keyword=` | `input.search-input` | URL 含 `search` |
 
-### 4.2 `test_front_shop_ui.py`（4）— 买家已登录
+### 3.2 `test_front_shop_ui.py`（4）— 买家已登录
 
 | 用例 | 页面 | 关键定位 | 断言 |
 |------|------|----------|------|
@@ -131,7 +92,7 @@
 | `test_cart_page_display` | `/cart` | 购物车容器 | 页面含购物车内容 |
 | `test_checkout_page_display` | `/order/check` | `//button[contains(.,'提交订单')]` | 结算页加载 |
 
-### 4.3 `test_front_member_ui.py`（5）— 买家已登录
+### 3.3 `test_front_member_ui.py`（5）— 买家已登录
 
 | 用例 | 页面 | 断言 |
 |------|------|------|
@@ -141,12 +102,28 @@
 | `test_coupon_center` | `/coupon/list` | 集券中心卡片可见 |
 | `test_my_coupons_page` | `/member/coupon/list` | 含「优惠券」 |
 
-### 4.4 `test_admin_ui.py`（2）
+### 3.4 `test_admin_ui.py`（2）
 
 | 用例 | 页面 | 断言 |
 |------|------|------|
 | `test_admin_login_page` | `/admin/login/index` | 欢迎登录标题可见 |
 | `test_admin_coupon_list` | `/admin/promotion/coupon/list` | 表格行 ≥1 |
+
+---
+
+## 4. 异常用例明细
+
+### 4.1 `test_exception_ui.py`（1）— UI 异常
+
+| 用例 | 场景 | 断言 |
+|------|------|------|
+| `test_invalid_product_page` | 访问 `INVALID_PRODUCT_ID=999999999` | 页面含「不存在」「错误」「404」或至少有 body 内容 |
+
+### 4.2 `test_exception_e2e.py`（1）— E2E 异常
+
+| 用例 | 场景 | 断言 |
+|------|------|------|
+| `test_invalid_token_api` | 设置伪造 Token 后调用 `get_user_detail` | 抛出 `TigshopApiError` 且 `code != 0` |
 
 ---
 
@@ -168,33 +145,26 @@
 
 ---
 
-## 6. 关键 API 端点（实测可用）
+## 6. 关键 API 端点（E2E 混合断言使用）
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/home/home/index` | 首页 |
-| GET | `/api/product/product/list?keyword=` | 搜索/列表 |
 | GET | `/api/product/product/detail?id=` | 详情 |
-| POST | `/api/user/login/signin` | 买家登录 |
 | POST | `/api/cart/cart/addToCart` | 加购 |
-| GET | `/api/cart/cart/list` | 购物车 |
 | POST | `/api/cart/cart/clear` | 清空购物车 |
 | POST | `/api/order/check/index` | 结算页数据 |
-| GET | `/api/user/order/list` | 订单列表 |
-| GET | `/api/user/coupon/list` | 我的优惠券 |
-| GET | `/api/user/user/detail` | 用户信息 |
-| POST | `/adminapi/login/signin` | 后台登录 |
-| GET | `/adminapi/promotion/coupon/list` | 后台优惠券 |
+| GET | `/api/user/user/detail` | 用户信息（异常用例） |
 
 ---
 
 ## 7. 运行命令
 
 ```powershell
-.\pytest.bat -m api          # 仅 API（13）
-.\pytest.bat -m ui           # 仅 UI（15）
-.\pytest.bat -m e2e          # 仅 E2E（1）
-.\pytest.bat                 # 全部 29
+.\pytest.bat -m ui           # 仅 UI 功能（15）
+.\pytest.bat -m exception     # 仅异常（2）
+.\pytest.bat -m e2e           # 仅 E2E（2）
+.\pytest.bat -m smoke         # 冒烟（E2E 购买流程）
+.\pytest.bat                  # 全部 18
 ```
 
 报告：`pytest` 结束后自动生成 `reports/allure-report/index.html`

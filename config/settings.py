@@ -65,11 +65,13 @@ API_RETRY_COUNT = 3
 # API 重试间隔秒数，两次请求之间的 sleep 时长 （项目：api/client/base_client.py → API_RETRY_DELAY）
 API_RETRY_DELAY = 1.0
 
-# 商品搜索默认关键词，API/UI 测试未指定 keyword 时使用 （项目：tests/api/*, tests/ui/* → DEFAULT_SEARCH_KEYWORD）
+# 商品搜索默认关键词，UI/E2E 测试未指定 keyword 时使用 （项目：tests/ui/*, tests/e2e/* → DEFAULT_SEARCH_KEYWORD）
 DEFAULT_SEARCH_KEYWORD = "T"
 # 默认测试商品 ID，加购/详情等用例的 fallback （项目：tests/conftest.py → DEFAULT_PRODUCT_ID）
 DEFAULT_PRODUCT_ID = 338
-# 默认分类 ID，按分类列表接口测试使用 （项目：tests/api/test_home_product_api.py → DEFAULT_CATEGORY_ID）
+# 无效商品 ID，异常 UI 用例访问不存在商品页时使用 （项目：tests/ui/test_exception_ui.py → INVALID_PRODUCT_ID）
+INVALID_PRODUCT_ID = 999999999
+# 默认分类 ID，分类列表 UI 用例使用 （项目：tests/ui/test_front_home_ui.py → DEFAULT_CATEGORY_ID）
 DEFAULT_CATEGORY_ID = 1
 
 # 前台 localStorage 中买家 JWT 的键名，session_sync 读写 token 使用 （项目：utils/session_sync.py → AUTH_TOKEN_KEY）
