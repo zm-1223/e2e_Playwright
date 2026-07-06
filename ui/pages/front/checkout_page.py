@@ -31,10 +31,8 @@ class FrontCheckoutPage(BasePage):
 
 # 作用：定义函数/方法 page_loaded；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/checkout_page.py)
     def page_loaded(self) -> bool:
-        # 读取 body 全文用于关键字匹配（第三方：selenium → WebDriver.find_element, WebElement.text）
-        body = self.driver.find_element(By.TAG_NAME, "body").text
-        # 含“结算”“提交订单”或“收货”任一关键词则视为页面已加载（Python 内置：in）
-        return "结算" in body or "提交订单" in body or "收货" in body
+        # 显式等待结算页渲染出关键文案，应对 SPA 异步渲染 + implicit_wait=0（项目：ui/pages/base_page.py → BasePage.wait_body_contains_any）
+        return self.wait_body_contains_any(["结算", "提交订单", "收货"])
 
 # 作用：定义函数/方法 has_coupon_section；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/checkout_page.py)
     def has_coupon_section(self) -> bool:

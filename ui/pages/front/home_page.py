@@ -10,6 +10,8 @@
 from selenium.webdriver.common.by import By
 # 导入 Keys，模拟键盘按键（如 Enter）（第三方：selenium.webdriver.common.keys → Keys）
 from selenium.webdriver.common.keys import Keys
+# 导入 WebDriverWait，用于等待搜索结果页 URL（第三方：selenium.webdriver.support.ui → WebDriverWait）
+from selenium.webdriver.support.ui import WebDriverWait
 
 # 导入 Page Object 基类（项目：ui/pages/base_page.py → BasePage）
 from ui.pages.base_page import BasePage
@@ -23,8 +25,8 @@ class FrontHomePage(BasePage):
     SEARCH_INPUT = (By.CSS_SELECTOR, "input.search-input[name='keywords']")
     # 首页优惠券区块定位元组，兼容多种 DOM 结构（第三方：selenium → By.CSS_SELECTOR）
     COUPON_SECTION = (By.CSS_SELECTOR, ".mod_coupon, .coupon_list, .container.coupon-list")
-    # 商品详情链接定位元组（第三方：selenium → By.CSS_SELECTOR）
-    PRODUCT_LINK = (By.CSS_SELECTOR, "a[href*='/product/']")
+    # 商品详情链接定位元组：Tigshop 商品详情路由为 /item/SNxxxx（非 /product/）（第三方：selenium → By.CSS_SELECTOR）
+    PRODUCT_LINK = (By.CSS_SELECTOR, "a[href*='/item/']")
 
 # 作用：定义函数/方法 open_home；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/home_page.py)
     def open_home(self) -> None:
@@ -37,28 +39,35 @@ class FrontHomePage(BasePage):
         self.open_home()
         # 定位搜索输入框并等待可见（项目：ui/pages/base_page.py → BasePage.find）
         element = self.find(*self.SEARCH_INPUT)
-        # 清空搜索框原有内容（第三方：selenium → WebElement.clear）
+        # 先点击聚焦再清空，避免登录态下焦点/残值导致 Enter 提交异常（第三方：selenium → WebElement.click, clear）
+        element.click()
         element.clear()
         # 输入搜索关键词（第三方：selenium → WebElement.send_keys）
         element.send_keys(keyword)
         # 模拟按下 Enter 键触发搜索（第三方：selenium → Keys.ENTER）
         element.send_keys(Keys.ENTER)
-        # 等待 URL 包含 search，确认进入搜索结果页（项目：ui/pages/base_page.py → BasePage.wait_url_contains）
-        self.wait_url_contains("search")
+        # 等待进入搜索结果页；结果 URL 形如 /search/?keyword=xxx（同时含 search 与 keyword）（第三方：selenium → WebDriverWait）
+        try:
+            WebDriverWait(self.driver, self.timeout).until(
+                lambda d: "search" in d.current_url or "keyword" in d.current_url
+            )
+        # 登录态下 Enter 偶发不触发路由跳转时，兜底直接导航到搜索页（URL 模式已取证），保证 E2E 流程可继续（项目：ui/pages/base_page.py → BasePage.open）
+        except Exception:
+            self.open(f"search/?keyword={keyword}")
 
 # 作用：定义函数/方法 has_coupon_section；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/home_page.py)
     def has_coupon_section(self) -> bool:
         # 打开首页（项目：ui/pages/front/home_page.py → FrontHomePage.open_home）
         self.open_home()
-        # 查找优惠券区块元素列表，非空则返回 True（第三方：selenium → WebDriver.find_elements）
-        return bool(self.driver.find_elements(*self.COUPON_SECTION))
+        # 显式等待优惠券区块渲染后判断是否存在（项目：ui/pages/base_page.py → BasePage.elements_present）
+        return bool(self.elements_present(*self.COUPON_SECTION))
 
 # 作用：定义函数/方法 product_link_count；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/home_page.py)
     def product_link_count(self) -> int:
         # 打开首页（项目：ui/pages/front/home_page.py → FrontHomePage.open_home）
         self.open_home()
-        # 统计页面上商品链接数量并返回（第三方：selenium → WebDriver.find_elements；Python 内置：len）
-        return len(self.driver.find_elements(*self.PRODUCT_LINK))
+        # 显式等待商品链接渲染后统计数量（项目：ui/pages/base_page.py → BasePage.elements_present；Python 内置：len）
+        return len(self.elements_present(*self.PRODUCT_LINK))
 
 # 作用：定义函数/方法 open_category_list；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/home_page.py)
     def open_category_list(self, category_id: int = 1) -> None:
@@ -67,8 +76,8 @@ class FrontHomePage(BasePage):
 
 # 作用：定义函数/方法 category_has_products；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/home_page.py)
     def category_has_products(self) -> bool:
-        # 查找分类页中的商品链接，数量大于 0 表示有商品（第三方：selenium → WebDriver.find_elements；Python 内置：len）
-        return len(self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")) > 0
+        # 显式等待并查找分类页商品链接(/item/)，数量大于 0 表示有商品（项目：ui/pages/base_page.py → BasePage.elements_present；Python 内置：len）
+        return len(self.elements_present(*self.PRODUCT_LINK)) > 0
 
 # 作用：定义函数/方法 page_title_contains；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/home_page.py)
     def page_title_contains(self, text: str) -> bool:

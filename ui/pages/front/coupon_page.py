@@ -38,21 +38,17 @@ class FrontCouponPage(BasePage):
     def coupon_center_loaded(self) -> bool:
         # 进入集券中心（项目：ui/pages/front/coupon_page.py → FrontCouponPage.open_coupon_center）
         self.open_coupon_center()
-        # 存在优惠券列表或页面标题元素则视为加载成功（第三方：selenium → find_elements；Python 内置：bool, or）
-        return bool(self.driver.find_elements(*self.COUPON_LIST)) or bool(
-# 作用：定位 DOM 元素；调用关系：Selenium WebDriver；自定义/框架：框架(Selenium)；来源(selenium)
-            self.driver.find_elements(*self.PAGE_TITLE)
-# 作用：调用方法/函数；调用关系：见左侧调用表达式；自定义/框架：自定义或框架；来源(ui/pages/front/coupon_page.py)
+        # 显式等待优惠券列表或页面标题渲染后判断，应对 SPA 异步渲染（项目：ui/pages/base_page.py → BasePage.elements_present）
+        return bool(self.elements_present(*self.COUPON_LIST)) or self.wait_body_contains_any(
+            ["集券中心", "优惠券"]
         )
 
 # 作用：定义函数/方法 my_coupons_loaded；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/coupon_page.py)
     def my_coupons_loaded(self) -> bool:
         # 打开我的优惠券页（项目：ui/pages/front/coupon_page.py → FrontCouponPage.open_my_coupons）
         self.open_my_coupons()
-        # 获取 body 全文（第三方：selenium → WebDriver.find_element, WebElement.text）
-        body = self.driver.find_element(By.TAG_NAME, "body").text
-        # 含“优惠券”文案则视为页面加载成功（Python 内置：in）
-        return "优惠券" in body
+        # 显式等待 body 出现"优惠券"文案，应对 SPA 异步渲染（项目：ui/pages/base_page.py → BasePage.wait_body_contains_any）
+        return self.wait_body_contains_any(["优惠券"])
 
 # 作用：定义函数/方法 claim_button_count；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/coupon_page.py)
     def claim_button_count(self) -> int:

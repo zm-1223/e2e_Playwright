@@ -31,7 +31,47 @@ def extract_token_from_browser(driver: WebDriver, keys: Optional[list] = None) -
         if token:
 # 作用：返回结果给调用方；调用关系：函数出口；自定义/框架：Python 内置；来源(return)
             return str(token)
-    # 所有候选键均未找到 token 时返回 None （Python 内置：return None）
+    # 兜底：前端 token 键名不固定（买家/后台不一致，或被 JSON 包裹），遍历所有 localStorage 查找形如 JWT(eyJ 开头) 的值 （第三方：selenium → WebDriver.execute_script）
+    token = driver.execute_script(
+        r"""
+        const isJwt = v => typeof v === 'string' && /^eyJ[\w-]+\.[\w-]+\./.test(v);
+        for (let i = 0; i < localStorage.length; i++) {
+          const raw = localStorage.getItem(localStorage.key(i));
+          if (!raw) continue;
+          if (isJwt(raw)) return raw;
+          try {
+            const stack = [JSON.parse(raw)];
+            while (stack.length) {
+              const cur = stack.pop();
+              if (cur && typeof cur === 'object') {
+                for (const val of Object.values(cur)) {
+                  if (isJwt(val)) return val;
+                  if (val && typeof val === 'object') stack.push(val);
+                }
+              }
+            }
+          } catch (e) {}
+        }
+        return null;
+        """
+    )
+    # localStorage 找到 JWT 直接返回 （Python 内置：if, str, return）
+    if token:
+        return str(token)
+    # 兜底：Tigshop 买家前台把 JWT 存在 cookie(如 accessToken) 而非 localStorage，遍历 cookie 查找候选名或形如 JWT 的值 （第三方：selenium → WebDriver.get_cookies）
+    import re  # 延迟导入正则，用于识别 JWT 格式的 cookie 值 （标准库：re）
+
+    jwt_pattern = re.compile(r"^eyJ[\w-]+\.[\w-]+\.")  # JWT 三段式特征：eyJ 开头 + 两个点分隔 （标准库：re）
+    cookies = driver.get_cookies()  # 读取当前域下全部 cookie（含 httpOnly） （第三方：selenium → WebDriver.get_cookies）
+    # 优先按候选名精确匹配 cookie （Python 内置：for）
+    for cookie in cookies:
+        if cookie.get("name") in candidates and cookie.get("value"):
+            return str(cookie["value"])
+    # 再兜底：任意值形如 JWT 的 cookie （Python 内置：for）
+    for cookie in cookies:
+        if jwt_pattern.match(str(cookie.get("value", ""))):
+            return str(cookie["value"])
+    # 所有存储均未找到 token 时返回 None，表示确实未登录或未持久化 token （Python 内置：return None）
     return None
 
 

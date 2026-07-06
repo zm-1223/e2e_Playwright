@@ -130,10 +130,15 @@ def admin_driver(admin_base_url) -> Generator:  # 作用：创建后台浏览器
     WebDriverManager.quit_driver(driver)  # 作用：teardown 关闭浏览器；调用关系：driver_manager；自定义/框架：自定义；来源(ui/driver/driver_manager.py)
 
 
-@pytest.fixture(scope="function")  # 作用：function 级已登录买家 WebDriver；调用关系：前台购物流程 UI 用例；自定义/框架：框架(pytest)；来源(pytest)
-def buyer_driver(front_driver, front_base_url) -> Generator:  # 作用：在 front_driver 上执行 UI 登录；调用关系：login_buyer_via_ui；自定义/框架：自定义 fixture；来源(本文件)
-    login_buyer_via_ui(front_driver)  # 作用：通过 UI 登录买家账号；调用关系：utils.ui_auth；自定义/框架：自定义；来源(utils/ui_auth.py)
-    yield front_driver  # 作用：返回已登录的同一 driver 实例；调用关系：复用 front_driver；自定义/框架：框架(pytest)；来源(pytest)
+@pytest.fixture(scope="session")  # 作用：session 级已登录买家 WebDriver，全套件只创建/登录一次；调用关系：前台购物/会员/优惠券 UI 用例共享；自定义/框架：框架(pytest)；来源(pytest)
+def buyer_driver(front_base_url) -> Generator:  # 作用：独立创建浏览器并只登录一次，供所有登录依赖用例复用，避免高频登录触发站点行为验证风控；调用关系：login_buyer_via_ui；自定义/框架：自定义 fixture；来源(本文件)
+    ensure_dir(SCREENSHOTS_DIR)  # 作用：确保截图目录存在；调用关系：失败截图；自定义/框架：自定义；来源(utils/allure_helper.py)
+    driver = WebDriverManager.create_driver()  # 作用：实例化 Selenium WebDriver；调用关系：driver_manager；自定义/框架：自定义；来源(ui/driver/driver_manager.py)
+    driver.get(front_base_url)  # 作用：导航至前台首页；调用关系：Selenium WebDriver.get；自定义/框架：框架(Selenium)；来源(selenium)
+    PopupHandler(driver).dismiss_all()  # 作用：关闭弹窗；调用关系：PopupHandler；自定义/框架：自定义；来源(utils/popup_handler.py)
+    login_buyer_via_ui(driver)  # 作用：通过 UI 登录买家账号（整套件仅此一次）；调用关系：utils.ui_auth；自定义/框架：自定义；来源(utils/ui_auth.py)
+    yield driver  # 作用：返回已登录 driver，供所有登录依赖用例复用；调用关系：pytest；自定义/框架：框架(pytest)；来源(pytest)
+    WebDriverManager.quit_driver(driver)  # 作用：session 结束关闭浏览器；调用关系：teardown；自定义/框架：自定义；来源(ui/driver/driver_manager.py)
 
 
 @pytest.fixture(scope="function")  # 作用：function 级已登录后台 WebDriver；调用关系：admin_coupon_page；自定义/框架：框架(pytest)；来源(pytest)

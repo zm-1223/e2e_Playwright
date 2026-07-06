@@ -33,10 +33,8 @@ class FrontCartPage(BasePage):
     def has_cart_content(self) -> bool:
         # 打开购物车页（项目：ui/pages/front/cart_page.py → FrontCartPage.open_cart）
         self.open_cart()
-        # 获取 body 元素的全部可见文本（第三方：selenium → WebDriver.find_element, WebElement.text）
-        body = self.driver.find_element(By.TAG_NAME, "body").text
-        # 页面含“购物车”文案或存在商品行元素则视为有内容（Python 内置：in, len；第三方：selenium → find_elements）
-        return "购物车" in body or len(self.driver.find_elements(*self.CART_ITEM)) > 0
+        # 显式等待购物车页渲染：出现“购物车”文案或商品行即视为有内容，应对 SPA 异步渲染 + implicit_wait=0（项目：ui/pages/base_page.py → BasePage.wait_body_contains_any / elements_present）
+        return self.wait_body_contains_any(["购物车"]) or len(self.elements_present(*self.CART_ITEM)) > 0
 
 # 作用：定义函数/方法 go_checkout；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/cart_page.py)
     def go_checkout(self) -> None:

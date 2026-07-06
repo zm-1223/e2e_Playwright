@@ -68,6 +68,34 @@ class BasePage:
         )
 
 # 作用：定义函数/方法 find_clickable；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/base_page.py)
+    def wait_body_contains_any(self, keywords) -> bool:
+        # 显式轮询等待 <body> 文本出现任一关键词，应对 SPA 异步渲染 + implicit_wait=0；超时返回 False（第三方：selenium → WebDriverWait, By.TAG_NAME）
+        def _check(d):
+            try:
+                text = d.find_element(By.TAG_NAME, "body").text
+            except Exception:
+                return False
+            return any(k in text for k in keywords)
+
+        try:
+            WebDriverWait(self.driver, self.timeout).until(_check)
+            return True
+        except Exception:
+            return False
+
+# 作用：定义函数/方法 elements_present；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/base_page.py)
+    def elements_present(self, by: By, locator: str) -> list:
+        # 显式等待至少 1 个匹配元素出现（应对 SPA 异步渲染 + implicit_wait=0）；超时则返回当前结果，不抛异常（第三方：selenium → WebDriverWait, EC.presence_of_all_elements_located）
+        try:
+            WebDriverWait(self.driver, self.timeout).until(
+                EC.presence_of_all_elements_located((by, locator))
+            )
+        except Exception:
+            pass
+        # 返回匹配元素列表（可能为空，表示确实不存在）（第三方：selenium → WebDriver.find_elements）
+        return self.driver.find_elements(by, locator)
+
+# 作用：定义函数/方法 find_clickable；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/base_page.py)
     def find_clickable(self, by: By, locator: str):
         # 短暂延迟，等待 DOM 稳定（项目：utils/wait_helper.py → stable_delay）
         stable_delay()

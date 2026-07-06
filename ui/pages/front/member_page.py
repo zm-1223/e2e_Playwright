@@ -36,23 +36,19 @@ class FrontMemberPage(BasePage):
     def member_page_loaded(self) -> bool:
         # 先进入会员中心（项目：ui/pages/front/member_page.py → FrontMemberPage.open_member_center）
         self.open_member_center()
-        # 获取 body 文本（第三方：selenium → WebDriver.find_element, WebElement.text）
-        body = self.driver.find_element(By.TAG_NAME, "body").text
-        # 含“个人”“会员”或“订单”则视为会员页加载成功（Python 内置：in）
-        return "个人" in body or "会员" in body or "订单" in body
+        # 显式等待 body 出现会员页典型文案，应对 SPA 异步渲染（项目：ui/pages/base_page.py → BasePage.wait_body_contains_any）
+        return self.wait_body_contains_any(["个人", "会员", "订单"])
 
 # 作用：定义函数/方法 orders_page_loaded；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/member_page.py)
     def orders_page_loaded(self) -> bool:
         # 打开订单列表页（项目：ui/pages/front/member_page.py → FrontMemberPage.open_orders）
         self.open_orders()
-        # 获取 body 文本（第三方：selenium → WebDriver.find_element, WebElement.text）
-        body = self.driver.find_element(By.TAG_NAME, "body").text
-        # 含“订单”则视为订单页加载成功（Python 内置：in）
-        return "订单" in body
+        # 显式等待 body 出现"订单"文案，应对 SPA 异步渲染（项目：ui/pages/base_page.py → BasePage.wait_body_contains_any）
+        return self.wait_body_contains_any(["订单"])
 
 # 作用：定义函数/方法 nav_link_count；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/front/member_page.py)
     def nav_link_count(self) -> int:
         # 打开会员中心（项目：ui/pages/front/member_page.py → FrontMemberPage.open_member_center）
         self.open_member_center()
-        # 统计会员导航链接数量（第三方：selenium → WebDriver.find_elements；Python 内置：len）
-        return len(self.driver.find_elements(*self.MEMBER_NAV))
+        # 显式等待会员导航链接渲染后统计数量（项目：ui/pages/base_page.py → BasePage.elements_present；Python 内置：len）
+        return len(self.elements_present(*self.MEMBER_NAV))

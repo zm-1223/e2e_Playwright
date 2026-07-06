@@ -8,11 +8,16 @@
 # =============================================================================
 # 导入 By，定义元素定位方式（第三方：selenium.webdriver.common.by → By）
 from selenium.webdriver.common.by import By
+# 导入 WebDriverWait，用于轮询等待登录 token 写入 localStorage（第三方：selenium.webdriver.support.ui → WebDriverWait）
+from selenium.webdriver.support.ui import WebDriverWait
 
 # 导入 Page Object 基类（项目：ui/pages/base_page.py → BasePage）
 from ui.pages.base_page import BasePage
 # 操作后短暂稳定延迟（项目：utils/wait_helper.py → stable_delay）
 from utils.wait_helper import stable_delay
+
+# 后台登录成功后 JWT 写入 localStorage 的键名（实测后台前端使用 accessToken）（项目：ui/pages/admin/login_page.py）
+_ADMIN_TOKEN_KEYS = ("accessToken", "token", "adminToken")
 
 
 # 后台登录页类：映射 Tigshop 管理后台登录界面（项目：ui/pages/admin/login_page.py → AdminLoginPage）
@@ -40,16 +45,20 @@ class AdminLoginPage(BasePage):
         """点击登录前勾选「我已阅读并同意《服务协议》和《隐私协议》」。"""
         # 关闭遮挡弹窗（项目：utils/popup_handler.py → PopupHandler.dismiss_all）
         self.popup.dismiss_all()
-        # 查找所有协议复选框候选元素（第三方：selenium → WebDriver.find_elements）
-        for checkbox in self.driver.find_elements(*self.AGREE_CHECKBOX):
+        # 显式等待协议复选框渲染出现，避免 implicit_wait=0 时未渲染就返回空导致漏勾选（项目：ui/pages/base_page.py → BasePage.elements_present）
+        for checkbox in self.elements_present(*self.AGREE_CHECKBOX):
             # 跳过不可见复选框（第三方：selenium → WebElement.is_displayed）
             if not checkbox.is_displayed():
                 continue  # 尝试下一个（Python 内置：continue）
             # 已勾选则无需重复操作（第三方：selenium → get_attribute）
             if "is-checked" in (checkbox.get_attribute("class") or ""):
                 return  # 直接返回（Python 内置：return）
-            # 点击勾选协议（第三方：selenium → WebElement.click）
-            checkbox.click()
+            # 必须点击 Element Plus 复选框方块 .el-checkbox__inner 才能真正切换；点 label 会落在文字/协议链接上而不勾选（第三方：selenium → find_element）
+            try:
+                checkbox.find_element(By.CSS_SELECTOR, ".el-checkbox__inner").click()
+            # inner 不存在或被遮挡时回退用 JS 点击 label 触发切换（第三方：selenium → execute_script）
+            except Exception:
+                self.driver.execute_script("arguments[0].click();", checkbox)
             # 等待 UI 状态稳定（项目：utils/wait_helper.py → stable_delay）
             stable_delay()
             return  # 勾选完成（Python 内置：return）
@@ -75,8 +84,13 @@ class AdminLoginPage(BasePage):
         self.find_clickable(*self.SUBMIT)
         # 点击登录按钮（项目：ui/pages/base_page.py → BasePage.click）
         self.click(*self.SUBMIT)
-        # 等待 URL 离开 /login，确认登录成功跳转（项目：ui/pages/base_page.py → BasePage.wait_url_not_contains）
-        self.wait_url_not_contains("/login")
+        # 后台 SPA 登录成功后不一定自动跳转，但会把 JWT 写入 localStorage；以 token 出现作为登录成功判据更可靠（第三方：selenium → WebDriverWait）
+        WebDriverWait(self.driver, self.timeout).until(
+            lambda d: any(
+                d.execute_script("return window.localStorage.getItem(arguments[0]);", key)
+                for key in _ADMIN_TOKEN_KEYS
+            )
+        )
 
     # 断言后台登录页标题可见，供 test_admin_login_page 使用（项目：ui/pages/admin/login_page.py → login_page_visible）
     def login_page_visible(self) -> bool:

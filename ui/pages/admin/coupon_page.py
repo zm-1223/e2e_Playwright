@@ -33,16 +33,14 @@ class AdminCouponPage(BasePage):
     def coupon_page_loaded(self) -> bool:
         # 导航到优惠券列表（项目：ui/pages/admin/coupon_page.py → AdminCouponPage.open_coupon_list）
         self.open_coupon_list()
-        # 存在页面标题或表格元素则视为加载成功（第三方：selenium → find_elements；Python 内置：bool, or）
-        return bool(self.driver.find_elements(*self.PAGE_HEADER)) or bool(
-# 作用：定位 DOM 元素；调用关系：Selenium WebDriver；自定义/框架：框架(Selenium)；来源(selenium)
-            self.driver.find_elements(*self.TABLE)
-# 作用：调用方法/函数；调用关系：见左侧调用表达式；自定义/框架：自定义或框架；来源(ui/pages/admin/coupon_page.py)
+        # 显式等待表格或“优惠券”标题渲染后判断，应对后台 SPA 异步渲染 + implicit_wait=0（项目：ui/pages/base_page.py → BasePage.elements_present）
+        return bool(self.elements_present(*self.TABLE)) or bool(
+            self.elements_present(*self.PAGE_HEADER)
         )
 
 # 作用：定义函数/方法 table_row_count；调用关系：见函数体调用链；自定义/框架：自定义；来源(ui/pages/admin/coupon_page.py)
     def table_row_count(self) -> int:
         # 打开优惠券列表页（项目：ui/pages/admin/coupon_page.py → AdminCouponPage.open_coupon_list）
         self.open_coupon_list()
-        # 统计表格行数并返回（第三方：selenium → WebDriver.find_elements；Python 内置：len）
-        return len(self.driver.find_elements(*self.TABLE_ROW))
+        # 显式等待表格行渲染后统计行数（项目：ui/pages/base_page.py → BasePage.elements_present；Python 内置：len）
+        return len(self.elements_present(*self.TABLE_ROW))
